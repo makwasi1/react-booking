@@ -10,6 +10,7 @@ const authSlice = createSlice({
     reducers: { //functions that take in the state and action and return a new state
         setCredentials : (state, action) =>  {
             state.userInfo = action.payload;
+            console.log("action.payload", action.payload);
             localStorage.setItem("userInfo", JSON.stringify(action.payload))
         },
         logout: (state) => {

@@ -1,18 +1,50 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import FormContainer from '../FormContainer';
+import { useDispatch, useSelector } from 'react-redux';
+import { useRegisterMutation } from '../../slices/usersApiSclice';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import Loader from '../Loader';
+
 
 const RegisterScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [name, setName] = useState('');
+    const [username, setName] = useState('');
 
-    const submitHandler = (e) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const  [register ,  {isLoading}] = useRegisterMutation();
+
+    const { userInfo } = useSelector((state) => state.auth);
+
+    const submitHandler = async (e) => {
         e.preventDefault();
-        console.log('submit');
+
+        if (password !== confirmPassword) {
+            toast.error('Passwords do not match');
+            return;
+        } else {
+            try {
+                const res = await register({username, email, password}).unwrap();
+                console.log('submit');
+                dispatch(setCredentials({...res}));
+                navigate('/');
+            } catch (err) {
+                toast.error(err?.data?.message || err.error);
+            }
+        }
+            
+       
     }
+
+    useEffect(() => {
+        if(userInfo) navigate('/');
+    },[navigate, userInfo])
 
     return (
         <FormContainer>
@@ -23,7 +55,7 @@ const RegisterScreen = () => {
                     <Form.Control
                         type='name'
                         placeholder='Enter name'
-                        value={name}
+                        value={username}
                         onChange={(e) => setName(e.target.value)}
                     ></Form.Control>
                 </Form.Group>
@@ -45,9 +77,9 @@ const RegisterScreen = () => {
                         Password
                     </Form.Label>
                     <Form.Control
-                        trype='password'
+                        type='password'
                         placeholder='Enter password'
-                        value={email}
+                        value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     >
                     </Form.Control>
@@ -62,9 +94,11 @@ const RegisterScreen = () => {
           ></Form.Control>
         </Form.Group>
                 <Button type='submit' variant='primary' className='mt-3'>
-                    Sign In
+                    Sign Up
                 </Button>
+                
             </Form>
+            {isLoading && <Loader />}
             <Row className='py-3'>
                 <Col>
                 Already have an account? <Link to='/login'>Login</Link>
