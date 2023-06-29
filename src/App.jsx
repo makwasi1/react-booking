@@ -6,6 +6,8 @@ import Header from './components/header'
 import { Container } from 'react-bootstrap'
 import HomeScreen from './components/screens/HomeScreen'
 import { Outlet } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -13,6 +15,7 @@ function App() {
   return (
     <>
     <Header />
+    <ToastContainer />
     <Container className='my-2' >
       <Outlet />
     </Container>

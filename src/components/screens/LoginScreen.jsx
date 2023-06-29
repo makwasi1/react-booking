@@ -5,6 +5,10 @@ import FormContainer from '../FormContainer';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLoginMutation } from '../../slices/usersApiSclice';
 import { setCredentials } from '../../slices/authSlice';
+import { toast } from 'react-toastify';
+import Loader from '../Loader';
+
+
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
@@ -27,8 +31,8 @@ const LoginScreen = () => {
             const res = await login({email, password}).unwrap();
             dispatch(setCredentials({...res}));
             navigate('/');
-        } catch (error) {
-            console.log(error.data.message || error.error);
+        } catch (err) {
+            toast.error(err?.data?.message || err.error);
         }
         console.log('submit');
     }
@@ -65,7 +69,7 @@ const LoginScreen = () => {
                     Sign In
                 </Button>
                 </Form>
-                {isLoading && <p>Loading......</p>}
+                {isLoading && <Loader />}
                 <Row className='py-3'>
                     <Col>
                     New Customer? <Link to='/register'>Register</Link>
