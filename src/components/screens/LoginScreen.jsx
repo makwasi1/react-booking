@@ -1,14 +1,35 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState,useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import FormContainer from '../FormContainer';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLoginMutation } from '../../slices/usersApiSclice';
+import { setCredentials } from '../../slices/authSlice';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    const submitHandler = (e) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
+
+    const [login, {isLoading}] = useLoginMutation();
+
+    const {userInfo} = useSelector((state) => state.auth);
+
+    useEffect(() => {
+        if(userInfo) navigate('/');
+    }, [navigate,userInfo]);
+
+    const submitHandler = async (e) => {
         e.preventDefault();
+        try {
+            const res = await login({email, password}).unwrap();
+            dispatch(setCredentials({...res}));
+            navigate('/');
+        } catch (error) {
+            console.log(error.data.message || error.error);
+        }
         console.log('submit');
     }
 
@@ -21,7 +42,7 @@ const LoginScreen = () => {
                         Email Address
                     </Form.Label>
                     <Form.Control
-                    trype='email'
+                    type='email'
                     placeholder='Enter email'
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -33,9 +54,9 @@ const LoginScreen = () => {
                     Password
                     </Form.Label>
                     <Form.Control
-                    trype='password'
+                    type='password'
                     placeholder='Enter password'
-                    value={email}
+                    value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     >
                     </Form.Control>
@@ -44,6 +65,7 @@ const LoginScreen = () => {
                     Sign In
                 </Button>
                 </Form>
+                {isLoading && <p>Loading......</p>}
                 <Row className='py-3'>
                     <Col>
                     New Customer? <Link to='/register'>Register</Link>
